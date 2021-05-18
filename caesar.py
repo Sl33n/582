@@ -1,11 +1,12 @@
 def encrypt(key,plaintext):
     ciphertext=""
-    #YOUR CODE HERE
+    for a in plaintext:
+       ciphertext = ciphertext + (chr(ord(a) + key))
     return ciphertext
 
 def decrypt(key,ciphertext):
     plaintext=""
-    #YOUR CODE HERE
+    for a in ciphertext:
+        plaintext = plaintext + (chr(ord(a) - key))
     return plaintext
-
 
