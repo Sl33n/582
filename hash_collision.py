@@ -1,3 +1,9 @@
+import hashlib
+import os
+import random
+import secrets
+
+
 def hash_collision(k):
     if not isinstance(k, int):
         print("hash_collision expects an integer")
