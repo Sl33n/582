@@ -23,13 +23,7 @@ def hash_collision(k):
 
         for i in range(k):
             if x_hash[63-i] == y_hash[63-i] and i==k-1:
-                print(x)
-                print(y)
-                print(x_hash)
-                print(y_hash)
                 return (x, y)
             if x_hash[63-i] == y_hash[63-i]:
                 continue
             else: break
-
-print(hash_collision(3))
