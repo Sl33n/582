@@ -22,8 +22,6 @@ def hash_collision(k):
 
         for i in range(k):
             if x_hash_binary[len(x_hash_binary) - i - 1] == y_hash_binary[len(y_hash_binary) - i - 1] and i == k - 1:
-                print(x_hash_binary)
-                print(y_hash_binary)
                 return (x, y)
             if x_hash_binary[len(x_hash_binary) - i - 1] == y_hash_binary[len(y_hash_binary) - i - 1]:
                 continue
@@ -37,5 +35,3 @@ def hex2binary(hex):
     hex_as_binary = bin(hex_as_int)
     padded_binary = hex_as_binary[2:].zfill(end_length)
     return padded_binary
-
-(hash_collision(20))
