@@ -13,8 +13,8 @@ def hash_collision(k):
     y = b'\x00'
 
     while True:
-        x = os.urandom(10)
-        y = os.urandom(10)
+        x = os.urandom(16)
+        y = os.urandom(16)
         x_hash = hashlib.sha256(x).hexdigest()
         y_hash = hashlib.sha256(y).hexdigest()
         x_hash_binary = hex2binary(x_hash)
