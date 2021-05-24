@@ -14,7 +14,6 @@ def hash_preimage(target_string):
 
         for i in range(len(target_string)):
             if x_hash_binary[len(x_hash_binary) - i - 1] == target_string[len(target_string) - i - 1] and i == len(target_string)-1:
-                print(x_hash_binary)
                 return (x)
             if x_hash_binary[len(x_hash_binary) - i - 1] == target_string[len(target_string) - i - 1]:
                 continue
@@ -29,4 +28,3 @@ def hex2binary(hex):
     padded_binary = hex_as_binary[2:].zfill(end_length)
     return padded_binary
 
-hash_preimage('00101011101001001010')
