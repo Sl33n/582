@@ -1,5 +1,7 @@
 import hashlib
 import os
+import secrets
+
 
 def hash_collision(k):
     if not isinstance(k, int):
@@ -14,15 +16,20 @@ def hash_collision(k):
 
 
     while True:
-        x = os.urandom(16)
-        y = os.urandom(16)
+        x = b"\x00" + secrets.token_bytes(4) + b"\x00"
+        y = b"\x00" + secrets.token_bytes(4) + b"\x00"
         x_hash = hashlib.sha256(x).hexdigest()
         y_hash = hashlib.sha256(y).hexdigest()
 
         for i in range(k):
             if x_hash[63-i] == y_hash[63-i] and i==k-1:
+                print(x)
+                print(y)
+                print(x_hash)
+                print(y_hash)
                 return (x, y)
             if x_hash[63-i] == y_hash[63-i]:
                 continue
             else: break
 
+print(hash_collision(3))
