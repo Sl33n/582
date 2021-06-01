@@ -26,7 +26,9 @@ def encrypt(pk, m):
 def decrypt(sk, c):
     m = 0
     (c1, c2) = c
-    inv = pow(c1, -1*sk, p)
-    m = pow(c2*inv, 1, p)
+    k = pow(c2,1,p)
+    l = pow(c,-sk,p)
+    m = pow(k*l,1,p)
 
     return m
+
