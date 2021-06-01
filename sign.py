@@ -18,7 +18,7 @@ def sign(m):
     r = 0
     s = 0
 
-    r, s = ecdsa.sign(m, private_key, hashfunc=sha256)
+    r, s = ecdsa.sign(m, private_key, curve=curve.secp256k1, hashfunc=sha384)
 
     assert isinstance(public_key, point.Point)
     assert isinstance(r, int)
