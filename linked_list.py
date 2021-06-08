@@ -48,7 +48,5 @@ pass
 # append 5 blocks to the blockchain
 def app_five(block_list):
     for i in range(6):
-        block_list.append(next_block(block_list.len-1))
+        block_list.append(next_block(len(block_list)-1))
 pass
-
-
