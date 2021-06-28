@@ -5,13 +5,19 @@ def num_BTC(b):
     c = float(0)
     sum = 0
     q = b//210000
+    print(q)
     m = b%210000
-    t = m * 50 / (q + 1)
+    print(m)
+    t = m * (50 / (q + 1))
+    print(t)
 
-    for i in range(q):
-        sum += (50/(i+1))*210000
+    while q > 0:
+        sum += (50 / (q)) * 210000
+        q = q-1
 
     c = sum + t
     return c
 
-print(num_BTC(425000))
+print(num_BTC(210000))
+
+
