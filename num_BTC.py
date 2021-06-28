@@ -3,21 +3,22 @@ import math
 def num_BTC(b):
     q = int(0)
     c = float(0)
-    sum = 0
+    sum = float(0)
+    t = float(0)
     q = b//210000
-    print(q)
+    print("q is", q)
     m = b%210000
-    print(m)
-    t = m * (50 / (q + 1))
-    print(t)
+    print("m is", m)
+    t = m*(50/(2**q))
+    print("t is", t)
 
     while q > 0:
-        sum += (50 / (q)) * 210000
+        sum = sum + (50 / (2**(q-1))) * 210000
         q = q-1
 
     c = sum + t
     return c
 
-print(num_BTC(210000))
+print(num_BTC(813574))
 
 
