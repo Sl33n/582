@@ -49,7 +49,7 @@ def get_most_expensive_transaction(block_num):
     maxblock_cost = 0
     for transaction in transactions_list:
         if get_transaction_cost(transaction) > block_cost
-        maxblock_cost = block_cost
-        max_tx = transaction
+            maxblock_cost = block_cost
+            max_tx = transaction
         
     return max_tx
