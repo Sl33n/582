@@ -40,6 +40,7 @@ def Simulate(alpha, gamma, N, seed):
                 state = 2
             else:
                 state = -1
+                ChainLength += 1
         # Write a piece of code to change the required variables.
 
         elif state == -1:
@@ -49,7 +50,7 @@ def Simulate(alpha, gamma, N, seed):
             if r <= alpha:
                 state = 0
                 SelfishRevenue = SelfishRevenue +2
-                ChainLength += 2
+                ChainLength += 1
             elif r <= alpha + (1 - alpha) * gamma:
                 state = 0
                 SelfishRevenue = SelfishRevenue + 1
@@ -74,8 +75,13 @@ def Simulate(alpha, gamma, N, seed):
         # The honest miners found a block
                 state = state - 1
                 SelfishRevenue = SelfishRevenue + 1
-                ChainLength += 2
+                ChainLength += 1
     return float(SelfishRevenue) / ChainLength
 
+
+""" 
+  Uncomment out the following lines to try out your code
+  DON'T include it in your final submission though.
+"""
 
 
