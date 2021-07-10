@@ -47,41 +47,27 @@ def Simulate(alpha, gamma, N, seed):
             # There are three situations!
             # Write a piece of code to change the required variables in each one.
             if r <= alpha:
-                pass
+                state = 0
+                SelfishRevenue = SelfishRevenue +2
             elif r <= alpha + (1 - alpha) * gamma:
-                pass
+                state = 0
             else:
-                pass
-
+                state = 0
+                SelfishRevenue = SelfishRevenue + 1
         elif state == 2:
             # The selfish pool has 2 hidden block.
             if r <= alpha:
-                pass
+                state = 3
             else:
         # The honest miners found a block.
-                pass
+                state = 2
         elif state > 2:
             if r <= alpha:
             # The selfish miners found a new block
-                pass
+                state = state + 1
             else:
         # The honest miners found a block
-                pass
+                state = state - 1
     return float(SelfishRevenue) / ChainLength
 
 
-""" 
-  Uncomment out the following lines to try out your code
-  DON'T include it in your final submission though.
-"""
-
-"""
-#let's run the code with the follwing parameters!
-alpha=0.35
-gamma=0.5
-Nsimu=10**7
-seed = 100
-#This is the theoretical probability computed in the original paper
-print("Theoretical probability :",(alpha*(1-alpha)**2*(4*alpha+gamma*(1-2*alpha))-alpha**3)/(1-alpha*(1+(2-alpha)*alpha)))
-print("Simulated probability :",Simulate(alpha,gamma,Nsimu, seed))
-"""
