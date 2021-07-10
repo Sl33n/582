@@ -78,10 +78,3 @@ def Simulate(alpha, gamma, N, seed):
                 ChainLength += 1
     return float(SelfishRevenue) / ChainLength
 
-
-""" 
-  Uncomment out the following lines to try out your code
-  DON'T include it in your final submission though.
-"""
-
-
