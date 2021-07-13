@@ -22,14 +22,17 @@ def send_tokens( receiver_pk, tx_amount ):
     first_valid_round = params.first
     tx_fee = params.min_fee
     last_valid_round = params.last
-    send_amount = tx_amount
     sender_pk = '4EHA2QPRXC2ZJDIAGSKHPSAACC2UC4TGFBKL3TL4QXB2KJZGJAOYZEUC7E'
+
     account_private_key = '388fvWgfXxIqhr1/ztNnQ29U0YKD40ddhfc22fiN3ZvhDg1B8bi1lI0ANJR3yAAQtUFyZihUvc18hcOlJyZIHQ=='
 
     tx = transaction.PaymentTxn(sender_pk, tx_fee, first_valid_round, last_valid_round, gen_hash, receiver_pk,
-                                send_amount)
-    txid = tx.sign(account_private_key)
+                                tx_amount, flat_fee=True)
+    signed_tx = tx.sign(account_private_key)
 
+    tx_confirm = acl.send_transaction(signed_tx)
+    wait_for_confirmation(acl)
+    txid=signed_tx.transaction.get_txid()
     return sender_pk, txid
 
 # Function from Algorand Inc.
