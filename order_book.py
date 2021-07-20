@@ -18,9 +18,9 @@ session = DBSession()
 def process_order(order):
     orders = session.query(Order).filter(Order.filled == None).all()
     sender_stored = order['sender_pk'] # store the sender_pk to be able to retrieve the order from the db later
-    insert_order_to_db(order)
+    insert(order)
     for existing_order in orders:
-        if match_found(existing_order, order):
+        if matched(existing_order, order):
             new_order = session.query(Order).filter(Order.filled == None,Order.sender_pk == sender_stored).first() # retrieve here
             new_order.counterparty_id = existing_order.id
             existing_order.counterparty_id = new_order.id
@@ -30,7 +30,7 @@ def process_order(order):
     pass
 
 
-def match_found(existing_order, order):
+def matched(existing_order, order):
     total_conditions = 4
     conditions_satisfied = 0
     if existing_order.buy_currency == order['sell_currency']:
@@ -49,7 +49,7 @@ def match_found(existing_order, order):
         return False
 
 
-def insert_order_to_db(order):
+def insert(order):
     fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount']
     order_obj = Order(**{f: order[f] for f in fields})
     session.add(order_obj)
