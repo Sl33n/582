@@ -61,12 +61,10 @@ if __name__ == '__main__':
     order = {
         'buy_currency': "Algorand",
         'sell_currency': "Ethereum",
-        #'buy_amount': 1245.00,
-        #'sell_amount': 2342.31,
-        'buy_amount': 256,
-        'sell_amount': 2,
+        'buy_amount': 1245.00,
+        'sell_amount': 2342.31,
         'sender_pk': '4EHA2QPRXC2ZJDIAGSKHPSAACC2UC4TGFBKL3TL4QXB2KJZGJAOYZEUC7E',
-        'receiver_pk': '2STMLZSWNKXJ6JY4VEU4QHZFSRN45ILNJCDRTEAT2WKWAFO2ZBQTIJHI7E'
+        'receiver_pk': '0xd1B77a920A0c5010469F40f14c5e4E03f4357226'
     }
     process_order(order)
     exit()
