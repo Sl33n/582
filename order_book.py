@@ -48,7 +48,7 @@ def insert(order):
     order_obj = Order(**{f: order[f] for f in fields})
     session.add(order_obj)
     session.commit()
-    print("order inserted ", order)
+    print("\norder inserted ", order)
 
 
 if __name__ == '__main__':
