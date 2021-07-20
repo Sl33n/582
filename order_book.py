@@ -16,7 +16,6 @@ session = DBSession()
 
 
 def process_order(order):
-    # Your code here
     orders = session.query(Order).filter(Order.filled == None).all()
     sender_stored = order['sender_pk'] # store the sender_pk to be able to retrieve the order from the db later
     insert_order_to_db(order)
@@ -64,10 +63,10 @@ if __name__ == '__main__':
         'sell_currency': "Ethereum",
         #'buy_amount': 1245.00,
         #'sell_amount': 2342.31,
-        'buy_amount': 765,
-        'sell_amount': 3,
-        'sender_pk': 'AAAAC3NzaC1lZDI1NjE5AAAAIB8Ht8Z3j6yDWPBHQtOp/R9rjWvfMYo3MSA/K6q8D86r',
-        'receiver_pk': '0xd1B77a920A0c5010469F40f14c5e4E03f4357226'
+        'buy_amount': 256,
+        'sell_amount': 2,
+        'sender_pk': '4EHA2QPRXC2ZJDIAGSKHPSAACC2UC4TGFBKL3TL4QXB2KJZGJAOYZEUC7E',
+        'receiver_pk': '2STMLZSWNKXJ6JY4VEU4QHZFSRN45ILNJCDRTEAT2WKWAFO2ZBQTIJHI7E'
     }
     process_order(order)
     exit()
