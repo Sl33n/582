@@ -31,9 +31,12 @@ def process_order(order):
 
 
 def matched(existing_order, order):
-    total_conditions = 4
-    conditions_satisfied = 0
-    if existing_order.buy_currency == order['sell_currency'] and existing_order.sell_currency == order['buy_currency'] and order['sell_amount'] != 0 and existing_order.buy_amount != 0 and existing_order.sell_amount / existing_order.buy_amount >= order['buy_amount'] / order['sell_amount'] and order['buy_amount'] == existing_order.sell_amount:
+    if existing_order.buy_currency == order['sell_currency'] \
+            and existing_order.sell_currency == order['buy_currency'] \
+            and order['sell_amount'] != 0 \
+            and existing_order.buy_amount != 0 \
+            and existing_order.sell_amount / existing_order.buy_amount >= order['buy_amount'] / order['sell_amount'] \
+            and order['buy_amount'] == existing_order.sell_amount:
 
         return True
     else:
