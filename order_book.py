@@ -17,11 +17,11 @@ session = DBSession()
 
 def process_order(order):
     orders = session.query(Order).filter(Order.filled == None).all()
-    sender_stored = order['sender_pk'] # store the sender_pk to be able to retrieve the order from the db later
+    receiver_stored = order['receiver_pk']
     insert(order)
     for existing_order in orders:
         if matched(existing_order, order):
-            new_order = session.query(Order).filter(Order.filled == None,Order.sender_pk == sender_stored).first() # retrieve here
+            new_order = session.query(Order).filter(Order.filled == None,Order.receiver_pk == receiver_stored).first()
             new_order.counterparty_id = existing_order.id
             existing_order.counterparty_id = new_order.id
             existing_order.filled = datetime.now()
