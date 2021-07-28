@@ -113,7 +113,7 @@ def order_book():
     orders = session.query(Order).filter(Order.filled == None).all()
     data = []
     for existing_order in orders:
-        if is_valid_order(existing_order):
+        if order_correct(existing_order):
             #print("valid")
             sender_pk = existing_order.sender_pk
             receiver_pk = existing_order.receiver_pk
@@ -148,25 +148,13 @@ def add_order(order):
     # print("order inserted ", order)
 
 
-def is_valid_order(existing_order):
+def order_correct(existing_order):
     sell_currency = existing_order.sell_currency
 
     if sell_currency != "Ethereum" and sell_currency != "Algorand":
         return False
 
     return True
-
-
-def verifyEth(content):
-    valid_eth = False
-    eth_pk = content['payload']['sender_pk']
-    payload = content['payload']
-    payload = json.dumps(payload)
-    eth_encoded_msg = eth_account.messages.encode_defunct(text=payload)
-    if eth_account.Account.recover_message(eth_encoded_msg, signature=content['sig']) == eth_pk:
-        print("Eth sig verifies!")
-        valid_eth = True
-    return valid_eth
 
 
 
