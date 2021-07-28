@@ -83,11 +83,11 @@ def trade():
         platform = content['payload']['sell_currency']
         if platform == 'Ethereum':
             if verifyEth(content):
-                insert_order_to_db(content)
+                add_order(content)
                 return jsonify(True)
         elif platform == 'Algorand':
             if verifyAlg(content):
-                insert_order_to_db(content)
+                add_order(content)
                 return jsonify(True)
         else:
             log_message(content)
@@ -129,7 +129,7 @@ def order_book():
     return jsonify(result)
 
 
-def insert_order_to_db(order):
+def add_order(order):
     order_obj = Order(sender_pk=order['payload']['sender_pk'], receiver_pk=order['payload']['receiver_pk'],
                       buy_currency=order['payload']['buy_currency'], sell_currency=order['payload']['sell_currency'],
                       buy_amount=order['payload']['buy_amount'], sell_amount=order['payload']['sell_amount'])
@@ -139,14 +139,7 @@ def insert_order_to_db(order):
 
 
 def is_valid_order(existing_order):
-    sig = existing_order.signature
-    sender_pk = existing_order.sender_pk
-    receiver_pk = existing_order.receiver_pk
-    buy_currency = existing_order.buy_currency
     sell_currency = existing_order.sell_currency
-    buy_amount = existing_order.buy_amount
-    sell_amount = existing_order.sell_amount
-    platform = sell_currency
 
     if sell_currency != "Ethereum" and sell_currency != "Algorand":
         return False
