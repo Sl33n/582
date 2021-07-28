@@ -81,13 +81,26 @@ def trade():
 
         # Your code here
         platform = content['payload']['sell_currency']
+
+
+
         if platform == 'Ethereum':
-            if verifyEth(content):
-                insert_order_to_db(content)
+            eth_pk = content['payload']['sender_pk']
+            payload = content['payload']
+            payload = json.dumps(payload)
+            eth_encoded_msg = eth_account.messages.encode_defunct(text=payload)
+            if eth_account.Account.recover_message(eth_encoded_msg, signature=content['sig']) == eth_pk:
+                print("Eth sig verifies!")
+                add_order(content)
                 return jsonify(True)
         elif platform == 'Algorand':
-            if verifyAlg(content):
-                insert_order_to_db(content)
+            payload = content['payload']
+            algo_sig_str = content['sig']
+            algo_pk = payload['sender_pk']
+            payload = json.dumps(payload)
+            if algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig_str, algo_pk):
+                print("Algo sig verifies!")
+                add_order(content)
                 return jsonify(True)
         else:
             log_message(content)
@@ -103,7 +116,7 @@ def order_book():
     orders = session.query(Order).filter(Order.filled == None).all()
     data = []
     for existing_order in orders:
-        if is_valid_order(existing_order):
+        if order_check(existing_order):
             #print("valid")
             sender_pk = existing_order.sender_pk
             receiver_pk = existing_order.receiver_pk
@@ -129,56 +142,22 @@ def order_book():
     return jsonify(result)
 
 
-def insert_order_to_db(order):
+def add_order(order):
     order_obj = Order(sender_pk=order['payload']['sender_pk'], receiver_pk=order['payload']['receiver_pk'],
                       buy_currency=order['payload']['buy_currency'], sell_currency=order['payload']['sell_currency'],
                       buy_amount=order['payload']['buy_amount'], sell_amount=order['payload']['sell_amount'])
     session.add(order_obj)
     session.commit()
-    # print("order inserted ", order)
 
 
-def is_valid_order(existing_order):
-    sig = existing_order.signature
-    sender_pk = existing_order.sender_pk
-    receiver_pk = existing_order.receiver_pk
-    buy_currency = existing_order.buy_currency
+def order_check(existing_order):
     sell_currency = existing_order.sell_currency
-    buy_amount = existing_order.buy_amount
-    sell_amount = existing_order.sell_amount
-    platform = sell_currency
 
     if sell_currency != "Ethereum" and sell_currency != "Algorand":
         return False
 
     return True
 
-
-def verifyEth(content):
-    valid_eth = False
-    eth_pk = content['payload']['sender_pk']
-    payload = content['payload']
-    payload = json.dumps(payload)
-    eth_encoded_msg = eth_account.messages.encode_defunct(text=payload)
-    if eth_account.Account.recover_message(eth_encoded_msg, signature=content['sig']) == eth_pk:
-        print("Eth sig verifies!")
-        valid_eth = True
-    return valid_eth
-
-
-def verifyAlg(content):
-    payload = content['payload']
-    algo_sig_str = content['sig']
-    algo_pk = payload['sender_pk']
-    payload = json.dumps(payload)
-    if algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig_str, algo_pk):
-        print("Algo sig verifies!")
-        return True
-    return False
-
-
 if __name__ == '__main__':
-    #content = {'sig':'0xd51babaaefe9cacbfae8bed46434399ad05700403ee7aa51c83ddb5d04ab7d4d4cb5307263812ea0c002cf6aebed2c0677adf0d74529d68ca59bbdb81ccdd4da1c', 'payload': {'platform': 'Ethereum', 'sender_pk': '0x906DB3244Eea11815EABEf36f8bcbbF47C92765C', 'receiver_pk': 'a651c757d3488953430969a31d480d4bf8cb4e16952ed41fee1feef764ee3df6', 'buy_currency': 'Algorand', 'sell_currency': 'Ethereum', 'sell_amount': 5172, 'buy_amount': 15516}}
-    #verifyAlg(content)
     app.run(port='5002')
-    #order_book()
+
