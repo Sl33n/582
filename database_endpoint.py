@@ -82,7 +82,12 @@ def trade():
         # Your code here
         platform = content['payload']['sell_currency']
         if platform == 'Ethereum':
-            if verifyEth(content):
+            eth_pk = content['payload']['sender_pk']
+            payload = content['payload']
+            payload = json.dumps(payload)
+            eth_encoded_msg = eth_account.messages.encode_defunct(text=payload)
+            if eth_account.Account.recover_message(eth_encoded_msg, signature=content['sig']) == eth_pk:
+                print("Eth sig verifies!")
                 add_order(content)
                 return jsonify(True)
         elif platform == 'Algorand':
