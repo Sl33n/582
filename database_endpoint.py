@@ -86,7 +86,12 @@ def trade():
                 add_order(content)
                 return jsonify(True)
         elif platform == 'Algorand':
-            if verifyAlg(content):
+            payload = content['payload']
+            algo_sig_str = content['sig']
+            algo_pk = payload['sender_pk']
+            payload = json.dumps(payload)
+            if algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig_str, algo_pk):
+                print("Algo sig verifies!")
                 add_order(content)
                 return jsonify(True)
         else:
@@ -158,16 +163,6 @@ def verifyEth(content):
         valid_eth = True
     return valid_eth
 
-
-def verifyAlg(content):
-    payload = content['payload']
-    algo_sig_str = content['sig']
-    algo_pk = payload['sender_pk']
-    payload = json.dumps(payload)
-    if algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig_str, algo_pk):
-        print("Algo sig verifies!")
-        return True
-    return False
 
 
 if __name__ == '__main__':
