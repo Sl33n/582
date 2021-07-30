@@ -4,8 +4,8 @@ from zksk import utils
 
 def ZK_equality(G, H):
 
-    r1 = Secret(utils.get_random_num(bits=2))
-    r2 = Secret(utils.get_random_num(bits=2))
+    r1 = Secret(utils.get_random_num(bits=128))
+    r2 = Secret(utils.get_random_num(bits=128))
     m = Secret(utils.get_random_num(bits=2))
 
     C1 = r1.value * G
@@ -18,4 +18,3 @@ def ZK_equality(G, H):
     zk_proof = stmt.prove()
 
     return (C1, C2), (D1, D2), zk_proof
-
