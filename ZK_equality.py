@@ -10,10 +10,10 @@ def ZK_equality(G, H):
     m = Secret(utils.get_random_num(bits=128))
 
     C1 = r1.value * G
-    C2 = m * G + r1.value * H
+    C2 = m.value * G + r1.value * H
 
     D1 = r2.value * G
-    D2 = m * G + r2.value * H
+    D2 = m.value * G + r2.value * H
 
     stmt = DLRep(C1, r1.value * G) & DLRep(C2, r1.value * H + m.value * G) & DLRep(D1, r2.value * G) & DLRep(D2, r2.value * H + m.value * G)
     zk_proof = stmt.prove()
