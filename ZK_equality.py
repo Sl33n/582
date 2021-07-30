@@ -4,9 +4,9 @@ from zksk import utils
 
 def ZK_equality(G, H):
 
-    r1 = Secret(utils.get_random_num(bits=128))
-    r2 = Secret(utils.get_random_num(bits=128))
-    m = 1
+    r1 = Secret(utils.get_random_num(bits=2))
+    r2 = Secret(utils.get_random_num(bits=2))
+    m = Secret(utils.get_random_num(bits=2))
 
     C1 = r1.value * G
     C2 = m * G + r1.value * H
