@@ -22,3 +22,4 @@ def ZK_equality(G, H):
     # Return two ciphertexts and the proof
     return (C1, C2), (D1, D2), zk_proof
 
+
