@@ -50,9 +50,10 @@ class TXO:
         list = []
         for tx_object in tx['vin']:
             add = self.from_tx_hash(tx_object['txid'], self.n)
-            list.append(txo_to_add)
+            list.append(add)
         self.inputs.append(txo_list)
         if d > 0:
             add.get_inputs(d-1)
         else:
             pass
+
