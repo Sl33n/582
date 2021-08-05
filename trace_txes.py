@@ -39,27 +39,20 @@ class TXO:
     @classmethod
     def from_tx_hash(cls, tx_hash, n=0):
         tx = rpc_connection.getrawtransaction(tx_hash, True)
-        value = tx['vout'][n]['value'] * 100000000
-        # n = tx['vout'][0]['n']
-        # owner = tx['vout'][n]['scriptPubKey']['addresses'][0]
+        amount = tx['vout'][n]['value'] * 100000000
         owner = tx['vout'][n].get('scriptPubKey').get('addresses')[0]
-        time = datetime.fromtimestamp(tx['time'])
-        new_txo = TXO(tx_hash=tx_hash, n=n, amount=value, owner=owner, time=time)
-        # print(tx)
-        return new_txo
+        timestamp = datetime.fromtimestamp(tx['time'])
+        txo = TXO(tx_hash=tx_hash, n=n, amount=amount, owner=owner, time=timestamp)
+        return txo
 
     def get_inputs(self, d=1):
         tx = rpc_connection.getrawtransaction(self.tx_hash, True)
-        txo_list = []
+        list = []
         for tx_object in tx['vin']:
-            txo_to_add = self.from_tx_hash(tx_object['txid'], self.n)
-            txo_list.append(txo_to_add)
+            add = self.from_tx_hash(tx_object['txid'], self.n)
+            list.append(txo_to_add)
         self.inputs.append(txo_list)
         if d > 0:
-            txo_to_add.get_inputs(d-1)
+            add.get_inputs(d-1)
         else:
             pass
-
-
-if __name__ == '__main__':
-    pass
