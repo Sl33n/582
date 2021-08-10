@@ -33,4 +33,5 @@ def tradeTokens(sell_token: address, sell_quantity: uint256):
 @external
 def ownerWithdraw():
     assert self.owner == msg.sender
-	#Your code here
+    self.token_address.transfer(self.owner, self.totalTokenQty)
+    selfdestruct(self.owner)
