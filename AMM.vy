@@ -3,6 +3,7 @@ from vyper.interfaces import ERC20
 tokenAQty: public(uint256) #Quantity of tokenA held by the contract
 tokenBQty: public(uint256) #Quantity of tokenB held by the contract
 token_address: ERC20
+totalTokenQty: public(uint256)
 
 invariant: public(uint256) #The Constant-Function invariant (tokenAQty*tokenBQty = invariant throughout the life of the contract)
 tokenA: ERC20 #The ERC20 contract for tokenA
