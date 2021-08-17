@@ -1,207 +1,138 @@
-from flask import Flask, request, g
-from flask_restful import Resource, Api
-from sqlalchemy import create_engine
-from flask import jsonify
+#!/usr/bin/python3
+from algosdk.v2client import algod
+from algosdk.v2client import indexer
+from algosdk import account, mnemonic
+from algosdk.future import transaction
+
+def connect_to_algo(connection_type=''):
+    #Connect to Algorand node maintained by PureStake
+    algod_token = "B3SU4KcVKi94Jap2VXkK83xx38bsv95K5UZm2lab"
+    
+    if connection_type == "indexer":
+        # TODO: return an instance of the v2client indexer. This is used for checking payments for tx_id's
+        algod_address = "https://testnet-algorand.api.purestake.io/idx2"
+        headers = {
+            "X-API-Key": algod_token,
+        }
+        algod_client = algod.AlgodClient(algod_token, algod_address, headers)
+        return algod_client
+
+    else:
+        # TODO: return an instance of the client for sending transactions
+        # Tutorial Link: https://developer.algorand.org/tutorials/creating-python-transaction-purestake-api/
+        algod_address = "https://testnet-algorand.api.purestake.io/ps2"
+        purestake_token = {'X-Api-key': algod_token}
+        mnemonic_secret = "opinion luxury security private power sponsor coast explain fault project gossip garden cupboard fly squirrel motion drop estate decade symptom lion danger smoke abandon green"
+        account_private_key = mnemonic.to_private_key(mnemonic_secret)
+        account_public_key = mnemonic.to_public_key(mnemonic_secret)
+        algod_client = algod.AlgodClient(algod_token, algod_address, headers=purestake_token)
+        return algod_client
+
+def send_tokens_algo( acl, sender_sk, txes):
+    params = acl.suggested_params
+    gen_hash = params.gh
+    first_valid_round = params.first
+    tx_fee = params.min_fee
+    last_valid_round = params.last
+
+    
+    # TODO: You might want to adjust the first/last valid rounds in the suggested_params
+    #       See guide for details
+
+    # TODO: For each transaction, do the following:
+    #       - Create the Payment transaction 
+    #       - Sign the transaction
+    
+    # TODO: Return a list of transaction id's
+
+    sender_pk = account.address_from_private_key(sender_sk)
+
+    tx_ids = []
+    for i,tx in enumerate(txes):
+
+        # TODO: Sign the transaction
+        signed_tx = tx.sign(sender_pk)
+        
+        try:
+            print(f"Sending {tx['amount']} microalgo from {sender_pk} to {tx['receiver_pk']}" )
+            
+            # TODO: Send the transaction to the testnet
+            
+            txinfo = wait_for_confirmation_algo(acl, txid=tx_id )
+            tx_id = signed_tx.transaction.get_txid()
+            tx_ids.append(tx_id)
+
+            print(f"Sent {tx['amount']} microalgo in transaction: {tx_id}\n" )
+        except Exception as e:
+            print(e)
+
+    return tx_ids
+
+# Function from Algorand Inc.
+def wait_for_confirmation_algo(client, txid):
+    """
+    Utility function to wait until the transaction is
+    confirmed before proceeding.
+    """
+    last_round = client.status().get('last-round')
+    txinfo = client.pending_transaction_info(txid)
+    while not (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0):
+        print("Waiting for confirmation")
+        last_round += 1
+        client.status_after_block(last_round)
+        txinfo = client.pending_transaction_info(txid)
+    print("Transaction {} confirmed in round {}.".format(txid, txinfo.get('confirmed-round')))
+    return txinfo
+
+##################################
+
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
+from web3.exceptions import TransactionNotFound
 import json
-import eth_account
-import algosdk
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import load_only
-from datetime import datetime
-import sys
-
-from models import Base, Order, Log
-
-engine = create_engine('sqlite:///orders.db')
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+import progressbar
 
 
-app = Flask(__name__)
+def connect_to_eth():
+    IP_ADDR='3.23.118.2' #Private Ethereum
+    PORT='8545'
+
+    w3 = Web3(Web3.HTTPProvider('http://' + IP_ADDR + ':' + PORT))
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0) #Required to work on a PoA chain (like our private network)
+    w3.eth.account.enable_unaudited_hdwallet_features()
+    if w3.isConnected():
+        return w3
+    else:
+        print( "Failed to connect to Eth" )
+        return None
+
+def wait_for_confirmation_eth(w3, tx_hash):
+    print( "Waiting for confirmation" )
+    widgets = [progressbar.BouncingBar(marker=progressbar.RotatingMarker(), fill_left=False)]
+    i = 0
+    with progressbar.ProgressBar(widgets=widgets, term_width=1) as progress:
+        while True:
+            i += 1
+            progress.update(i)
+            try:
+                receipt = w3.eth.get_transaction_receipt(tx_hash)
+            except TransactionNotFound:
+                continue
+            break 
+    return receipt
 
 
-@app.before_request
-def create_session():
-    g.session = scoped_session(DBSession)
+####################
+def send_tokens_eth(w3,sender_sk,txes):
+    sender_account = w3.eth.account.privateKeyToAccount(sender_sk)
+    sender_pk = sender_account._address
 
-
-@app.teardown_appcontext
-def shutdown_session(response_or_exc):
-    sys.stdout.flush()
-    g.session.commit()
-    g.session.remove()
-
-
-""" Suggested helper methods """
-
-def verifyEth(content):
-    valid_eth = False
-    eth_pk = content['payload']['sender_pk']
-    payload = content['payload']
-    payload = json.dumps(payload)
-    eth_encoded_msg = eth_account.messages.encode_defunct(text=payload)
-    if eth_account.Account.recover_message(eth_encoded_msg, signature=content['sig']) == eth_pk:
-        print("Eth sig verifies!")
-        valid_eth = True
-    return valid_eth
-
-
-def verifyAlg(content):
-    payload = content['payload']
-    algo_sig_str = content['sig']
-    algo_pk = payload['sender_pk']
-    payload = json.dumps(payload)
-    if algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig_str, algo_pk):
-        print("Algo sig verifies!")
-        return True
-    return False
-
-
-def check_sig(payload, sig):
-    pass
-
-
-def fill_order(order, txes=[]):
-    pass
-
-def insert_order_to_db(order):
-    order_obj = Order(sender_pk=order['payload']['sender_pk'], receiver_pk=order['payload']['receiver_pk'],
-                      buy_currency=order['payload']['buy_currency'], sell_currency=order['payload']['sell_currency'],
-                      buy_amount=order['payload']['buy_amount'], sell_amount=order['payload']['sell_amount'])
-    session.add(order_obj)
-    session.commit()
-
-def log_message(d):
-    payload = d['payload']
-    messagePayload = json.dumps(payload)
-    log_obj = Log(message=messagePayload)
-    session.add(log_obj)
-    session.commit()
-    pass
-
-
-def is_valid_order(existing_order):
-    sell_currency = existing_order.sell_currency
-    if sell_currency != "Ethereum" and sell_currency != "Algorand":
-        return False
-    return True
-
-""" End of helper methods """
-
-
-@app.route('/trade', methods=['POST'])
-def trade():
-    if request.method == "POST":
-        content = request.get_json(silent=True)
-        print(f"content = {json.dumps(content)}")
-        columns = ["sender_pk", "receiver_pk", "buy_currency", "sell_currency", "buy_amount", "sell_amount", "platform"]
-        fields = ["sig", "payload"]
-        error = False
-        for field in fields:
-            if not field in content.keys():
-                print(f"{field} not received by Trade")
-                print(json.dumps(content))
-                log_message(content)
-                return jsonify(False)
-
-        error = False
-        for column in columns:
-            if not column in content['payload'].keys():
-                print(f"{column} not received by Trade")
-                error = True
-        if error:
-            print(json.dumps(content))
-            log_message(content)
-            return jsonify(False)
-
+    # TODO: For each of the txes, sign and send them to the testnet
+    # Make sure you track the nonce -locally-
+    
+    tx_ids = []
+    for i,tx in enumerate(txes):
         # Your code here
-        platform = content['payload']['sell_currency']
-        if platform == 'Ethereum':
-            eth_pk = content['payload']['sender_pk']
-            payload = content['payload']
-            payload = json.dumps(payload)
-            eth_encoded_msg = eth_account.messages.encode_defunct(text=payload)
-            if eth_account.Account.recover_message(eth_encoded_msg, signature=content['sig']) == eth_pk:
-                print("Eth sig verifies!")
-                add_order(content)
-                return jsonify(True)
-        elif platform == 'Algorand':
-            payload = content['payload']
-            algo_sig_str = content['sig']
-            algo_pk = payload['sender_pk']
-            payload = json.dumps(payload)
-            if algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig_str, algo_pk):
-                print("Algo sig verifies!")
-                add_order(content)
-                return jsonify(True)
-        else:
-            log_message(content)
-        return jsonify(False)
+        continue
 
-
-        # TODO: Check the signature (V)
-
-        # TODO: Add the order to the database (V)
-
-        # TODO: Fill the order
-
-        # TODO: Be sure to return jsonify(True) or jsonify(False) depending on if the method was successful
-
-
-@app.route('/order_book')
-def order_book():
-    # Your code here
-    # Note that you can access the database session using g.session
-    #
-    orders = session.query(Order).filter(Order.filled == None).all()
-    data = []
-    for existing_order in orders:
-        if order_correct(existing_order):
-            #print("valid")
-            sender_pk = existing_order.sender_pk
-            receiver_pk = existing_order.receiver_pk
-            buy_currency = existing_order.buy_currency
-            sell_currency = existing_order.sell_currency
-            buy_amount = existing_order.buy_amount
-            sell_amount = existing_order.sell_amount
-            signature = existing_order.signature
-
-            orderJson = {
-                "sender_pk": sender_pk,
-                "receiver_pk": receiver_pk,
-                "buy_currency": buy_currency,
-                "sell_currency": sell_currency,
-                "buy_amount": buy_amount,
-                "sell_amount": sell_amount,
-                "signature": signature,
-            }
-            data.append(orderJson)
-    result = {"data": data}
-    # return json.dumps(result)
-    # return app.response_class(json.dumps(result), content_type='application/json')
-    return jsonify(result)
-
-
-def add_order(order):
-    order_obj = Order(sender_pk=order['payload']['sender_pk'], receiver_pk=order['payload']['receiver_pk'],
-                      buy_currency=order['payload']['buy_currency'], sell_currency=order['payload']['sell_currency'],
-                      buy_amount=order['payload']['buy_amount'], sell_amount=order['payload']['sell_amount'])
-    session.add(order_obj)
-    session.commit()
-    # print("order inserted ", order)
-
-
-def order_correct(existing_order):
-    sell_currency = existing_order.sell_currency
-
-    if sell_currency != "Ethereum" and sell_currency != "Algorand":
-        return False
-
-    return True
-
-
-
-if __name__ == '__main__':
-    app.run(port='5002')
+    return tx_ids
