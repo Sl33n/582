@@ -1,7 +1,8 @@
+#!/usr/bin/python3
 
 from algosdk.v2client import algod
 from algosdk.v2client import indexer
-from algosdk import account, mnemonic
+from algosdk import account
 from algosdk.future import transaction
 
 def connect_to_algo(connection_type=''):
@@ -11,30 +12,15 @@ def connect_to_algo(connection_type=''):
     if connection_type == "indexer":
         # TODO: return an instance of the v2client indexer. This is used for checking payments for tx_id's
         algod_address = "https://testnet-algorand.api.purestake.io/idx2"
-        headers = {
-            "X-API-Key": algod_token,
-        }
-        algod_client = algod.AlgodClient(algod_token, algod_address, headers)
-        return algod_client
-
     else:
         # TODO: return an instance of the client for sending transactions
         # Tutorial Link: https://developer.algorand.org/tutorials/creating-python-transaction-purestake-api/
         algod_address = "https://testnet-algorand.api.purestake.io/ps2"
-        purestake_token = {'X-Api-key': algod_token}
-        mnemonic_secret = "opinion luxury security private power sponsor coast explain fault project gossip garden cupboard fly squirrel motion drop estate decade symptom lion danger smoke abandon green"
-        account_private_key = mnemonic.to_private_key(mnemonic_secret)
-        account_public_key = mnemonic.to_public_key(mnemonic_secret)
-        algod_client = algod.AlgodClient(algod_token, algod_address, headers=purestake_token)
-        return algod_client
+
+    return None
 
 def send_tokens_algo( acl, sender_sk, txes):
     params = acl.suggested_params
-    gen_hash = params.gh
-    first_valid_round = params.first
-    tx_fee = params.min_fee
-    last_valid_round = params.last
-
     
     # TODO: You might want to adjust the first/last valid rounds in the suggested_params
     #       See guide for details
@@ -49,24 +35,23 @@ def send_tokens_algo( acl, sender_sk, txes):
 
     tx_ids = []
     for i,tx in enumerate(txes):
+        unsigned_tx = "Replace me with a transaction object"
 
         # TODO: Sign the transaction
-        signed_tx = tx.sign(sender_pk)
+        signed_tx = "Replace me with a SignedTransaction object"
         
         try:
             print(f"Sending {tx['amount']} microalgo from {sender_pk} to {tx['receiver_pk']}" )
             
             # TODO: Send the transaction to the testnet
             
+            tx_id = "Replace me with the tx_id"
             txinfo = wait_for_confirmation_algo(acl, txid=tx_id )
-            tx_id = signed_tx.transaction.get_txid()
-            tx_ids.append(tx_id)
-
             print(f"Sent {tx['amount']} microalgo in transaction: {tx_id}\n" )
         except Exception as e:
             print(e)
 
-    return tx_ids
+    return []
 
 # Function from Algorand Inc.
 def wait_for_confirmation_algo(client, txid):
