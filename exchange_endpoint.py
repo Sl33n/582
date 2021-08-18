@@ -123,7 +123,7 @@ def insert_order_to_db(order):
     session.commit()
 
 
-def verifyEth(content):
+def veriEther(content):
     valid_eth = False
     eth_pk = content['payload']['sender_pk']
     payload = content['payload']
@@ -135,7 +135,7 @@ def verifyEth(content):
     return valid_eth
 
 
-def verifyAlg(content):
+def veriAlgo(content):
     payload = content['payload']
     algo_sig_str = content['sig']
     algo_pk = payload['sender_pk']
@@ -266,12 +266,12 @@ def trade():
         # Your code here
         platform = content['payload']['sell_currency']
         if platform == 'Ethereum':
-            if verifyEth(content):
+            if veriEther(content):
                 if verify_transaction(content):
                     insert_order_to_db(content)
                     return jsonify(True)
         elif platform == 'Algorand':
-            if verifyAlg(content):
+            if veriAlgo(content):
                 insert_order_to_db(content)
                 return jsonify(True)
         else:
