@@ -98,7 +98,7 @@ def connect_to_eth():
     PORT='8545'
 
     w3 = Web3(Web3.HTTPProvider('http://' + IP_ADDR + ':' + PORT))
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0) #Required to work on a PoA chain (like our private network)
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0) 
     w3.eth.account.enable_unaudited_hdwallet_features()
     if w3.isConnected():
         return w3
@@ -132,7 +132,7 @@ def send_tokens_eth(w3,sender_sk,txes):
     
     tx_ids = []
     for i,tx in enumerate(txes):
-        # Your code here
+        x=0
         continue
 
     return tx_ids
