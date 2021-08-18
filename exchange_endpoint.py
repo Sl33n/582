@@ -151,7 +151,7 @@ def get_keys():
 
 
 def get_algo_keys():
-    mnemonic_secret = "opinion luxury security private power sponsor coast explain fault project gossip garden cupboard fly squirrel motion drop estate decade symptom lion danger smoke abandon green"
+    mnemonic_secret = "inform ecology almost submit valve praise regular segment foil wife then cry mind try come piano oil emotion frequent gown primary armed vast abandon spread"
     algo_sk = mnemonic.to_private_key(mnemonic_secret)
     algo_pk = mnemonic.to_public_key(mnemonic_secret)
     return algo_sk, algo_pk
@@ -241,24 +241,8 @@ def trade():
     connect_to_blockchains()
     get_keys()
     if request.method == "POST":
-        # content = {'sig': signature,
-        #        'payload': {'sender_pk': "TWYS3Y6SJOUW6WIEIXTBOII7523QI4MUO3TSYDS7SCG4TIGGC2S6V6TJP4",
-        #                    'receiver_pk': "0xB7F6617dc26C3C609c8837E45eE9D061Eb7a9D9b",
-        #                    'buy_currency': "Ethereum",
-        #                    'sell_currency': "Algorand",
-        #                    'buy_amount': 51,
-        #                    'sell_amount': 257,
-        #                    'tx_id': "LR2CL4OXAMQ2EQVGFRUH27JA6SGUSBTJR7GB56S3NZ5KMGKJVLLA"}}
 
         content = request.get_json(silent=True)
-        # content = {'sig': signature,
-        #        'payload': {'sender_pk': "TWYS3Y6SJOUW6WIEIXTBOII7523QI4MUO3TSYDS7SCG4TIGGC2S6V6TJP4",
-        #                    'receiver_pk': "0xB7F6617dc26C3C609c8837E45eE9D061Eb7a9D9b",
-        #                    'buy_currency': "Ethereum",
-        #                    'sell_currency': "Algorand",
-        #                    'buy_amount': 51,
-        #                    'sell_amount': 257,
-        #                    'tx_id': "LR2CL4OXAMQ2EQVGFRUH27JA6SGUSBTJR7GB56S3NZ5KMGKJVLLA"}}
         columns = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "platform", "tx_id", "receiver_pk"]
         fields = ["sig", "payload"]
         error = False
@@ -293,17 +277,6 @@ def trade():
         else:
             log_message(content)
         return jsonify(False)
-        # 1. Check the signature
-
-        # 2. Add the order to the table
-
-        # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
-
-        # 3b. Fill the order (as in Exchange Server II) if the order is valid
-
-        # 4. Execute the transactions
-
-        # If all goes well, return jsonify(True). else return jsonify(False)
 
 
 @app.route('/order_book')
